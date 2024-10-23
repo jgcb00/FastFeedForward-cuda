@@ -113,7 +113,7 @@ void fff_cuda_forward(
   const int threads = 1024;
   const int blocks = (batch_size + threads - 1) / threads;
 
-  AT_DISPATCH_FLOATING_TYPES(torch::kBFloat16, in_weight.scalar_type(), "fff_forward_cuda", ([&] {
+  AT_DISPATCH_FLOATING_TYPES(at::ScalarType::BFloat16, in_weight.scalar_type(), "fff_forward_cuda", ([&] {
     fff_cuda_forward_kernel<scalar_t><<<blocks, threads>>>(
         output.packed_accessor<scalar_t,2,torch::RestrictPtrTraits,size_t>(),
         x.packed_accessor<scalar_t,2,torch::RestrictPtrTraits,size_t>(),
