@@ -1,0 +1,2 @@
+include fastfeedforward_cuda/*.cu
+include fastfeedforward_cuda/*.cpp
