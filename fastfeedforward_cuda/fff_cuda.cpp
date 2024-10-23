@@ -4,7 +4,7 @@
 
 // CUDA forward declarations
 
-torch::Tensor fff_cuda_forward(
+void fff_cuda_forward(
 	torch::Tensor x,
 	torch::Tensor in_weight,
 	torch::Tensor in_bias,
@@ -33,7 +33,7 @@ torch::Tensor fff_cuda_forward(
 #define CHECK_POSITIVE(x) AT_ASSERTM(x>0, #x " must be positive")
 #define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
 
-torch::Tensor fff_forward(
+void fff_forward(
 	torch::Tensor x,
 	torch::Tensor in_weight,
 	torch::Tensor in_bias,
