@@ -48,12 +48,12 @@ class FFFN_function(torch.autograd.Function):
             int(master_node_width),
             int(n_nodes_per_tree),
         )
-        row_indices = torch.repeat_interleave(torch.arange(activated_nodes.shape[0]), 
-                            torch.tensor([activated_nodes.shape[1]]))
+        row_indices = torch.repeat_interleave(torch.arange(activated_nodes.shape[0], device=x.device), 
+                            torch.tensor([activated_nodes.shape[1]], device=x.device))
         activated_nodes = activated_nodes.view(-1)
         col_indices = torch.stack((row_indices, activated_nodes), dim=0)
         intermediate_values = intermediate_values.view(-1)
-        sparse_inter = torch.sparse_coo_tensor(col_indices, intermediate_values, (batch_size, n_nodes_per_tree * number_of_tree))
+        sparse_inter = torch.sparse_coo_tensor(col_indices, intermediate_values, (batch_size, n_nodes_per_tree * number_of_tree), device=x.device)
         ctx.save_for_backward(x, sparse_inter)
         return output.view(init_shape), activated_nodes
 
