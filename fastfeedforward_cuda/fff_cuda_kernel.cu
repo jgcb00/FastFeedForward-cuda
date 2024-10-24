@@ -40,9 +40,9 @@ __global__ void fff_cuda_forward_kernel(
   const int row_index = blockIdx.x * blockDim.x + threadIdx.x;
 
   // zero the output
-  for (int i = 0; i < width; ++i) {
+  /*for (int i = 0; i < width; ++i) {
     output[row_index][i] = 0;
-  }
+  }*/
 
   if (row_index < x.size(0)) {
     int current_node = 0;
