@@ -48,10 +48,10 @@ __global__ void fff_cuda_forward_kernel(
     int current_node = 0;
     int current_tree_offset = 0;
     int current_node_w_offset = 0;
-    for (int current_tree = 0; current_tree < parallel_size; current_tree++) {
+    for (int current_tree = 0; current_tree < parallel_size; ++current_tree) {
       current_tree_offset = current_tree * n_nodes;
       current_node = 0;
-      for (int current_depth = 0; current_depth < depth; current_depth++) {
+      for (int current_depth = 0; current_depth < depth; ++current_depth) {
         scalar_t acc = 0;
         current_node_w_offset = current_node + current_tree_offset;
         activated_nodes[row_index][current_tree*depth + current_depth] = current_node_w_offset;
@@ -72,18 +72,18 @@ __global__ void fff_cuda_forward_kernel(
         current_node = (current_node<<1) + 1 + (acc > load_balancing_bias[current_node_w_offset] ? 1 : 0);
       }
       // Apply master node leaf weights
-      for (int i = 1; i <= master_node_width; i++) {
+      for (int i = 1; i <= master_node_width; ++i) {
         scalar_t acc = 0;
         current_node_w_offset = current_tree_offset + n_nodes - i;
         activated_nodes[row_index][current_tree*depth + depth + i - 1] = current_node_w_offset;
-        for (int i = 0; i < width;++i) {
-            acc += x[row_index][i] * in_weight[current_node_w_offset][i];
+        for (int j = 0; j < width;++j) {
+            acc += x[row_index][j] * in_weight[current_node_w_offset][j];
         }
         acc += in_bias[current_node_w_offset];
         activated_nodes_values[row_index][current_tree*depth + depth + i - 1] = acc;
         acc = relu_squared(acc);
-        for (int i = 0; i < width; ++i) {
-            output[row_index][i] += acc * out_weight[current_node_w_offset][i];
+        for (int j = 0; j < width; ++j) {
+            output[row_index][j] += acc * out_weight[current_node_w_offset][j];
         }
       }
 
