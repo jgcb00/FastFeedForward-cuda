@@ -28,7 +28,7 @@ __global__ void fff_cuda_forward_kernel(
     const torch::PackedTensorAccessor<scalar_t,1,torch::RestrictPtrTraits,size_t> in_bias,
     const torch::PackedTensorAccessor<scalar_t,2,torch::RestrictPtrTraits,size_t> out_weight,
     const torch::PackedTensorAccessor<scalar_t,1,torch::RestrictPtrTraits,size_t> load_balancing_bias,
-    torch::PackedTensorAccessor<scalar_t,2,torch::RestrictPtrTraits,size_t> activated_nodes,
+    torch::PackedTensorAccessor<int32_t,2,torch::RestrictPtrTraits,size_t> activated_nodes,
     torch::PackedTensorAccessor<scalar_t,2,torch::RestrictPtrTraits,size_t> activated_nodes_values,
     const unsigned int width,
     const unsigned int depth,
@@ -54,7 +54,7 @@ __global__ void fff_cuda_forward_kernel(
       for (int current_depth = 0; current_depth < depth; ++current_depth) {
         scalar_t acc = 0;
         current_node_w_offset = current_node + current_tree_offset;
-        activated_nodes[row_index][current_tree*depth + current_depth] = current_node_w_offset;
+        activated_nodes[row_index][current_tree*depth + current_depth] = static_cast<int32_t>(current_node_w_offset);
         for (int i = 0; i < width;++i) {
             acc += x[row_index][i] * in_weight[current_node_w_offset][i];
         }
@@ -75,7 +75,7 @@ __global__ void fff_cuda_forward_kernel(
       for (int i = 1; i <= master_node_width; ++i) {
         scalar_t acc = 0;
         current_node_w_offset = current_tree_offset + n_nodes - i;
-        activated_nodes[row_index][current_tree*depth + depth + i - 1] = current_node_w_offset;
+        activated_nodes[row_index][current_tree*depth + depth + i - 1] = static_cast<int32_t>(current_node_w_offset);
         for (int j = 0; j < width;++j) {
             acc += x[row_index][j] * in_weight[current_node_w_offset][j];
         }
@@ -121,7 +121,7 @@ void fff_cuda_forward(
         in_bias.packed_accessor<scalar_t,1,torch::RestrictPtrTraits,size_t>(),
         out_weight.packed_accessor<scalar_t,2,torch::RestrictPtrTraits,size_t>(),
         load_balancing_bias.packed_accessor<scalar_t,1,torch::RestrictPtrTraits,size_t>(),
-        activated_nodes.packed_accessor<scalar_t,2,torch::RestrictPtrTraits,size_t>(),
+        activated_nodes.packed_accessor<int32_t,2,torch::RestrictPtrTraits,size_t>(),
         activated_nodes_values.packed_accessor<scalar_t,2,torch::RestrictPtrTraits,size_t>(),
         width,
         depth,
